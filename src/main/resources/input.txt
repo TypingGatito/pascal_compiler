@@ -1,7 +1,10 @@
 function f1(x1: real, z: boolean): boolean;
 var a, g: real;
+var b: boolean;
 begin
-A>9;
+b := A>9;
+
+f1 := b;
 end;
 
 
@@ -9,11 +12,13 @@ function fUNctioNaliuS(x: real, z: boolean): integer;
 var a: real;
 begin
 a>9;
+fUNctioNaliuS:=2;
 end;
 
 function f3(q: real, w: boolean, e: char): integer;
 begin
 functionalius(0.5, true);
+f3:=6;
 end;
 
 var xGlob, t: string;

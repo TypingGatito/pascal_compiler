@@ -3,18 +3,63 @@ package ast.statement
 import ast.AstNode
 import ast.statement.expr.ident.IdentNode
 import ast.statement.expr.ident.TypeNode
+import ast.utils.AstBase
 import ast.utils.HelpGroupNode
+import parser.ParseException
 
 class FuncDeclarationNode(
-    val type: TypeNode,
-    val name: IdentNode,
-    val params: List<ParamNode>,
-    val variables: List<VariablesDeclarationNode>,
-    val body: StatementNode,
-) : StatementNode() {
+    var type: TypeNode,
+    var name: IdentNode,
+    var params: List<ParamNode>,
+    var variables: List<VariablesDeclarationNode>,
+    var body: StatementNode,
+
+    ) : StatementNode() {
+    lateinit var returnAssignment: FunctionReturnAssignmentNode
+
+    init {
+        when (body) {
+            is AssignNode -> {
+                val asNode = body as AssignNode
+                println("DDDD ${asNode.nodeType}")
+                body = AstBase.EMPTY_STMT
+                returnAssignment = FunctionReturnAssignmentNode(
+                    variable = name,
+                    value = asNode.value,
+                )
+            }
+
+            is StatementsBlockNode -> {
+                val bodyReal = (body as StatementsBlockNode)
+                val last = bodyReal.statements.lastOrNull()
+                last?.let { lastSt ->
+                    if (lastSt !is AssignNode) throw ParseException("Function ${name} does not have a return")
+                    returnAssignment = FunctionReturnAssignmentNode(
+                        variable = name,
+                        value = lastSt.value,
+                    )
+
+                    val newStatements = bodyReal.statements.toMutableList()
+                    newStatements.removeLast()
+                    bodyReal.statements = newStatements
+                } ?: run {
+                    throw ParseException("Функция ${name} не возвращает значение")
+                }
+            }
+
+            else -> throw ParseException("Функция ${name} не возвращает значение")
+        }
+
+        if (returnAssignment.variable.name == this.name.name
+        ) {
+
+        } else {
+            throw ParseException("Функция ${name} не возвращает значение")
+        }
+    }
 
     override fun toString(): String {
-        return "f_desc"
+        return "fun_declaration"
     }
 
     override fun children(): List<AstNode> {
@@ -25,6 +70,7 @@ class FuncDeclarationNode(
         astNodes.add(HelpGroupNode("params", this.params))
         if (variables.isNotEmpty()) astNodes.add(HelpGroupNode("variables", this.variables))
         astNodes.add(this.body)
+        astNodes.add(this.returnAssignment)
         return astNodes
     }
 }

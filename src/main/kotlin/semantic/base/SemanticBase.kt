@@ -1,6 +1,7 @@
 package semantic.base
 
 import ast.AstNode
+import ast.statement.FunctionReturnAssignmentNode
 import ast.statement.TypeConvertNode
 import ast.statement.expr.ExprNode
 import exceptions.SemanticException
@@ -121,6 +122,7 @@ object SemanticBase {
     }
 
     @Throws(SemanticException::class)
+    @JvmStatic
     fun typeConvert(
         expr: ExprNode?,
         type: TypeDesc,
@@ -146,9 +148,41 @@ object SemanticBase {
             val errorNode = exceptNode ?: expr
             val errorComment = comment?.takeIf { it.isNotBlank() }?.let { " ($it)" } ?: ""
 
+            if (type.isFunc) {
+                val conv = typeConvert(expr, type.returnType!!)
+            }
+
             throw errorNode.semanticError(
                 "Тип ${expr.nodeType}$errorComment не конвертируется в $type"
             )
         }
+    }
+
+    @Throws(SemanticException::class)
+    @JvmStatic
+    fun funcReturnCheck(
+        ret: FunctionReturnAssignmentNode,
+    ) {
+        val func = ret.variable
+        val retType = ret.variable.nodeType!!.returnType!!
+        val expr = ret.value
+
+        if (!func.nodeType!!.isFunc) {
+            throw SemanticException("Функция ${func.name} не возвращает значение")
+        }
+
+        if (expr.nodeType == retType) {
+            return
+        }
+
+        if (expr.nodeType!!.isSimple && retType.isSimple &&
+            TYPE_CONVERTIBILITY[expr.nodeType!!.baseType]?.contains(retType.baseType) == true) {
+            TypeConvertNode(expr, retType)
+        } else {
+            throw ret.semanticError(
+                "Тип ${expr.nodeType} не конвертируется в $retType"
+            )
+        }
+
     }
 }

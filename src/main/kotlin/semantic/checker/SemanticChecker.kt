@@ -23,6 +23,7 @@ class SemanticChecker {
         private const val BUILT_IN_OBJECTS: String = "" +
                 "function println(): integer;" +
                 "begin " +
+                "println:=11;" +
                 "end;" +
                 "begin end."
 
@@ -188,6 +189,10 @@ class SemanticChecker {
                 .semanticError(java.lang.String.format("Повторное объявление функции %s", node.name.name))
         }
         node.body.semanticCheck(this, childScope)
+
+        node.returnAssignment.variable.semanticCheck(this, childScope)
+        node.returnAssignment.value.semanticCheck(this, childScope)
+        SemanticBase.funcReturnCheck(node.returnAssignment)
     }
 
     @Throws(SemanticException::class)

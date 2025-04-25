@@ -3,7 +3,7 @@ package ast.statement
 import ast.AstNode
 
 class StatementsBlockNode(
-    val statements: List<StatementNode>,
+    var statements: List<StatementNode>,
 ) : StatementNode() {
 
     override fun children(): List<AstNode?> {
