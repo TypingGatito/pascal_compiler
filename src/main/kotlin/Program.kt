@@ -1,6 +1,5 @@
 import ast.AstNode
 import parser.Parser.parse
-import printer.Printer
 import printer.Printer.printTree
 import semantic.base.IdentScope
 import semantic.checker.SemanticChecker
@@ -8,7 +7,11 @@ import kotlin.system.exitProcess
 
 object Program {
 
-    fun execute(programFile: String, fileName: String) {
+    fun execute(
+        programFile: String,
+        showBaseTree: Boolean,
+        fileName: String
+    ) {
         var prog: AstNode? = null
         try {
             prog = parse(programFile)
@@ -17,12 +20,14 @@ object Program {
             exitProcess(1)
         }
 
-        println("ast:")
-        println(Printer.printTree(prog.tree(), System.lineSeparator()))
+        if (showBaseTree) {
+            println("ast:")
+            println(printTree(prog.tree(), System.lineSeparator()))
+        }
 
         println()
         println("semantic-check:")
-        val checker: SemanticChecker = SemanticChecker()
+        val checker = SemanticChecker()
         val scope: IdentScope = SemanticChecker.prepareGlobalScope()
         checker.semanticCheck(prog, scope)
 

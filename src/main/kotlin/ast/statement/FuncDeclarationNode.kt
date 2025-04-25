@@ -21,10 +21,9 @@ class FuncDeclarationNode(
         when (body) {
             is AssignNode -> {
                 val asNode = body as AssignNode
-                println("DDDD ${asNode.nodeType}")
                 body = AstBase.EMPTY_STMT
                 returnAssignment = FunctionReturnAssignmentNode(
-                    variable = name,
+                    variable = asNode.variable,
                     value = asNode.value,
                 )
             }
@@ -35,7 +34,7 @@ class FuncDeclarationNode(
                 last?.let { lastSt ->
                     if (lastSt !is AssignNode) throw ParseException("Function ${name} does not have a return")
                     returnAssignment = FunctionReturnAssignmentNode(
-                        variable = name,
+                        variable = lastSt.variable,
                         value = lastSt.value,
                     )
 

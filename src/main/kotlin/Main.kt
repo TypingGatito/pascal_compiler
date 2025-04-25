@@ -1,5 +1,3 @@
-
-import Program
 import org.apache.commons.cli.*
 import printer.Printer.readFile
 import kotlin.system.exitProcess
@@ -9,6 +7,7 @@ fun main(args: Array<String>) {
 
     // параметры вызова функции
     options.addOption(getOption("s", "source", true, "source code file", true))
+    options.addOption(getOption("b", "show-base", false, "show base tree", false))
 
     val parser: CommandLineParser = DefaultParser()
     val formatter = HelpFormatter()
@@ -25,7 +24,13 @@ fun main(args: Array<String>) {
     val src = cmd!!.getOptionValue("source")
     val srcText = readFile(src)
 
-    Program.execute(srcText, src)
+    val showBaseTree = cmd.hasOption("show-base")
+
+    Program.execute(
+        programFile = srcText,
+        showBaseTree = showBaseTree,
+        fileName = src
+    )
 }
 
 private fun getOption(
