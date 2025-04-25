@@ -1,0 +1,10 @@
+var a, b: integer;
+begin
+writeln('f');
+readln(a, b);
+for i := a to b do
+begin
+if i / 2 == 0 then writeln(a);
+else writeln(b);
+end;
+end.

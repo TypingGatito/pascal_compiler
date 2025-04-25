@@ -1,0 +1,32 @@
+function f1(x1: real, z: boolean): boolean;
+var a, g: real;
+begin
+A>9;
+end;
+
+
+function fUNctioNaliuS(x: real, z: boolean): integer;
+var a: real;
+begin
+a>9;
+end;
+
+function f3(q: real, w: boolean, e: char): integer;
+begin
+functionalius(0.5, true);
+end;
+
+var xGlob, t: string;
+var g, t2, d: integer;
+begin
+
+if (true)
+then g := 5;
+else g := 5;
+
+while d>2 do
+begin
+f1(d, true);
+println();
+end;
+end.

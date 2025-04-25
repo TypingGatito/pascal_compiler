@@ -1,0 +1,389 @@
+
+
+/*
+    Грамматика 3:
+        type    -> <тип>
+        string  -> <строка>
+        char    -> <символ>
+        real    -> <число с запятой>
+        int     -> <число>
+        num     -> real | int
+        ident   -> <идентификатор>
+        group   -> num | ident | func_call | '(' expr ')'
+        mult    -> group (('*' | '/') group)*
+        add     -> mult (('+' | '-') mult)*
+        expr    -> add
+        call_param   -> expr
+        call_params  -> (param (',' param)*)?
+        func_call   -> ident ('(' params ')')?
+        if      -> 'if' ' ' expr ' ' 'then' stmt ( else stmt )?
+        while   -> 'while' '(' expr ')' stmt
+        for     -> 'for' '(' stmt? ';' expr? ';' stmt? ')' stmt
+        stmt    ->
+            'begin' stmts 'end' |
+            if |
+            while |
+            for |
+            ident ':=' expr |
+            func_call
+        stmts   -> stmt*
+        decl_param   -> ident ':' type
+        decl_params  -> (param (',' param)*)?
+        func_decl -> 'function' ident '(' dec_params ')' ':' type
+        procedure_decl -> 'procedure' ident '(' dec_params ')' ':' type
+        prog    -> stmts
+        start   -> prog
+*/
+
+options {
+  LOOKAHEAD=2;
+
+  STATIC = false;
+}
+
+
+PARSER_BEGIN(PascalCompiler)
+package parser;
+
+import ast.*;
+import ast.statement.*;
+import ast.statement.expr.*;
+import ast.statement.expr.ident.*;
+import java.io.InputStream;
+import java.util.List;
+import java.util.ArrayList;
+
+
+public class PascalCompiler {
+}
+
+PARSER_END(PascalCompiler)
+
+TOKEN: {
+    <IF: "if">
+  | <ELSE: "else">
+  | <THEN: "then">
+  | <FOR: "for">
+  | <WHILE: "while">
+  | <DO: "do">
+  | <TRUE: "true">
+  | <FALSE: "false">
+  | <BEGIN: "begin">
+  | <END: "end">
+  | <PROGRAM: "program">
+  | <FUNCTION: "function">
+  | <PROCEDURE: "procedure">
+  | < TYPE: "integer" | "real" | "string" | "boolean" | "char">
+  | <ASSIGN: ":=">
+  | <VAR: "var">
+  | <TO: "to">
+  | <DOWNTO: "downto">
+}
+
+SKIP:  {
+    " " |
+    "\t" |
+    "\n" |
+    "\r" |
+    < C_COMMENTS: "(*" ( ~["*"] | "*" ~[")"] )* "*)"> |
+    < SLASH_COMMENTS: "//" ("\\\n" | ~["\n"] )* >
+}
+
+TOKEN: {
+    <#LETTER: ["a"-"z", "A"-"Z", "_"]>
+  | < EMPTY: "" >
+  | <#DIGIT: ["0"-"9"]>
+
+  |  <INT_VALUE: (<DIGIT>)+>
+  | <REAL_VALUE: <INT_VALUE> ("." (<DIGIT>)*)?>
+
+  | <#ESCAPE: "\\" ["n","t","b","r","f","\\","\"","\'"]>
+  | <CHAR_VALUE: "\'" (~["\'","\\"]|<ESCAPE>) "\'">
+  | <STRING_VALUE: "\'" (~["\'","\\"]|<ESCAPE>)* "\'">
+
+  | < ADD: "+" > | < SUB: "-" >
+
+  | < MUL: "*" > | < DIV: "/" > | < MOD: "mod" >
+  | < AND: "and" > | < OR: "or" >
+  | < BIT_AND: "&" > | < BIT_OR: "|" >
+  | < GE: ">=" > | < LE: "<=" >
+  | < GT: ">" > | < LT: "<" >
+  | < NEQUALS: "!=" > | < EQUALS: "==" >
+  |  < LPAR: "(" > | < RPAR: ")" >
+  |    < SEMI: ";" > | < COMMA: "," >
+  | <END_OF_PROG: ".">
+  | <COLON: ":">
+}
+TOKEN: {
+    <IDENT: <LETTER>(<LETTER>|<DIGIT>)*>
+}
+
+// OK
+public AstNode start(): {
+    AstNode n;
+} {
+    n=program()
+    {return n;}
+}
+// OK
+ProgramNode program(): {
+    List<VariablesDeclarationNode> n1List = new ArrayList<>();
+    VariablesDeclarationNode n1;
+        List<FuncDeclarationNode> n3List = new ArrayList<>();
+        FuncDeclarationNode n3;
+    StatementsBlockNode n2;
+} {
+    (n3=func_decl() {n3List.add(n3);})*
+    (n1=vars_decl() {n1List.add(n1);})*
+    <BEGIN>
+    n2=statementsBlock()
+    <END>
+    <END_OF_PROG>
+    <EOF>
+    {return new ProgramNode(n1List, n2, n3List);}
+}
+
+// OK
+VariablesDeclarationNode vars_decl(): {
+    List<IdentNode> nList = new ArrayList<>();
+    IdentNode n1;
+    TypeNode n2;
+} {
+    <VAR> n1=ident() {nList.add(n1);} ( <COMMA> n1=ident() {nList.add(n1);})* <COLON> n2=type() <SEMI>
+    {return new VariablesDeclarationNode(nList, n2);}
+}
+
+// OK
+StatementsBlockNode statementsBlock(): {
+   List<StatementNode> nList = new ArrayList<>();
+   StatementNode n;
+} {
+   (n=stmt() {nList.add(n);})*
+   {return new StatementsBlockNode(nList);}
+}
+
+// OK
+StatementNode stmt(): {
+    StatementNode n;
+} {
+     (<BEGIN> n=statementsBlock() <END> (<SEMI>)+
+    | n=stmtActions() )
+    {return n;}
+}
+
+StatementNode stmtActions(): {
+    StatementNode n;
+} {
+    (n=if_() | n=while_() | n=func_decl()
+    | n=for_() | n=assign() <SEMI> | n=func_call() <SEMI> | n=expr() <SEMI>)
+     {return n;}
+}
+
+// OK
+AssignNode assign(): {
+    IdentNode n1;
+    ExprNode n2;
+    Token t;
+} {
+    n1=ident() <ASSIGN> n2=expr()
+    {return new AssignNode(n1, n2);}
+}
+
+// OK
+LiteralNode literal(): {
+    Token t;
+} {
+    (t=<INT_VALUE> | t=<REAL_VALUE>  | t=<FALSE> | t=<TRUE> | t=<STRING_VALUE>
+    | t=<CHAR_VALUE> )
+    {return new LiteralNode(t.toString());}
+}
+
+// OK
+IdentNode ident(): {
+   Token t;
+} {
+   t=<IDENT>
+   {return new IdentNode(t.toString());}
+}
+
+
+// OK
+TypeNode type(): {
+   Token t;
+} {
+   t=<TYPE>
+   {return new TypeNode(t.toString());}
+}
+
+// OK
+ExprNode expr(): {
+   ExprNode n;
+} {
+   n=logicalOr()
+   {return n;}
+}
+
+// if and cicles
+IfNode if_(): {
+    ExprNode n1;
+    StatementNode n2;
+    StatementNode n3 = null;
+} {
+    <IF>  n1=expr()  <THEN>
+    (n2=stmt() | <BEGIN> n2=stmtActions() <END>)
+    <ELSE>
+    (n3=stmt() | <BEGIN> n3=stmtActions() <END>)?
+    {return new IfNode(n1, n2, n3);}
+}
+
+WhileNode while_(): {
+    ExprNode n1;
+    StatementNode n2;
+    StatementNode n3 = null;
+} {
+    <WHILE>  n1=expr()  <DO>
+    (n2=stmt() | <BEGIN> n2=stmtActions() <END>)
+    {return new WhileNode(n1, n2);}
+}
+
+ForNode for_(): {
+    ForConditionNode n1;
+    StatementNode n2;
+    StatementNode n3 = null;
+} {
+    <FOR>  n1=forCond()  <DO>
+    (n2=stmt() | <BEGIN> n2=stmtActions() <END>)
+    {return new ForNode(n1, n2);}
+}
+
+ForConditionNode forCond(): {
+    AssignNode n1;
+    ExprNode n2;
+   Token t;
+} {
+    n1=assign()
+   ( t=<TO> | t=<DOWNTO> )
+   n2=expr()
+   {return new ForConditionNode(n1, t.toString(), n2);}
+}
+
+//
+
+// OK
+FuncCallNode func_call(): {
+    IdentNode n1;
+    ExprNode n2;
+    List<ExprNode> nList = new ArrayList<>();
+} {
+   n1=ident() <LPAR> (n2=expr() {nList.add(n2);} (<COMMA> n2=expr() {nList.add(n2);})*)? <RPAR>
+   {return new FuncCallNode(n1, nList);}
+}
+
+
+// OK
+ExprNode group(): {
+   ExprNode n;
+} {
+   (n=literal() | n=func_call() | n=ident() | <LPAR> n=expr() <RPAR>)
+   {return n;}
+}
+
+// BIN OPS START
+
+// OK
+ExprNode compare1(): {
+    ExprNode n1;
+    ExprNode n2;
+    Token t;
+} {
+    n1=add() ((t=<GE> | t=<LE> | t=<GT> | t=<LT>) n2=add() {n1 = new BinOpNode(t.toString(), n1, n2);})?
+    {return n1;}
+}
+
+// OK
+ExprNode compare2(): {
+    ExprNode n1;
+    ExprNode n2;
+    Token t;
+} {
+    n1=compare1() ((t=<EQUALS> | t=<NEQUALS>) n2=compare1() {n1 = new BinOpNode(t.toString(), n1, n2);})?
+    {return n1;}
+}
+
+// OK
+ExprNode logicalAnd(): {
+    ExprNode n1;
+    ExprNode n2;
+    Token t;
+} {
+    n1=compare2() (t=<AND> n2=compare2() {n1 = new BinOpNode(t.toString(), n1, n2);})*
+    {return n1;}
+}
+
+// OK
+ExprNode logicalOr(): {
+    ExprNode n1;
+    ExprNode n2;
+    Token t;
+} {
+    n1=logicalAnd() (t=<OR> n2=logicalAnd() {n1 = new BinOpNode(t.toString(), n1, n2);})*
+    {return n1;}
+}
+
+// OK
+ExprNode add(): {
+    ExprNode n1;
+    ExprNode n2;
+    Token t;
+} {
+    n1=mult() ((t=<ADD> | t=<SUB>) n2=mult() {n1 = new BinOpNode(t.toString(), n1, n2);})*
+    {return n1;}
+}
+
+// OK
+ExprNode mult(): {
+    ExprNode n1;
+    ExprNode n2;
+    Token t;
+} {
+    n1=group() ((t=<MUL> | t=<DIV> | t=<MOD>) n2=group() {n1 = new BinOpNode(t.toString(), n1, n2);})*
+    {return n1;}
+}
+
+// BIN OPS END
+
+
+FuncDeclarationNode func_decl(): {
+    TypeNode n1;
+    IdentNode n2;
+    List<ParamNode> nList;
+    StatementNode n3;
+    List<VariablesDeclarationNode> n4List = new ArrayList<>();
+    VariablesDeclarationNode n4;
+} {
+    <FUNCTION>
+n2=ident() <LPAR> nList=params() <RPAR> <COLON> n1=type() <SEMI>
+    (n4=vars_decl() {n4List.add(n4);})*
+
+(n3=stmt() | <BEGIN> n3=stmtActions() <END>)
+    {return new FuncDeclarationNode(n1, n2, nList, n4List, n3);}
+}
+
+List<ParamNode> params(): {
+    ParamNode n;
+    List<ParamNode> nList = new ArrayList<>();
+} {
+    (n=param() {nList.add(n);} (<COMMA> n=param() {nList.add(n);})*)?
+    {return nList;}
+}
+
+ParamNode param(): {
+    TypeNode n1;
+    IdentNode n2;
+} {
+    n2=ident() <COLON> n1=type()
+    {return new ParamNode(n1, n2);}
+}
+
+
+
