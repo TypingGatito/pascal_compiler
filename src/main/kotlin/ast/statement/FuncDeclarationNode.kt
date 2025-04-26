@@ -6,6 +6,7 @@ import ast.statement.expr.ident.TypeNode
 import ast.utils.AstBase
 import ast.utils.HelpGroupNode
 import parser.ParseException
+import semantic.checker.SemanticChecker
 
 class FuncDeclarationNode(
     var type: TypeNode,
@@ -32,28 +33,34 @@ class FuncDeclarationNode(
                 val bodyReal = (body as StatementsBlockNode)
                 val last = bodyReal.statements.lastOrNull()
                 last?.let { lastSt ->
-                    if (lastSt !is AssignNode) throw ParseException("Function ${name} does not have a return")
-                    returnAssignment = FunctionReturnAssignmentNode(
-                        variable = lastSt.variable,
-                        value = lastSt.value,
-                    )
+                    if (lastSt !is AssignNode) {
+                        SemanticChecker.errors.add("Функция ${name} не возвращает значение")
 
-                    val newStatements = bodyReal.statements.toMutableList()
-                    newStatements.removeLast()
-                    bodyReal.statements = newStatements
+                    } else {
+                        returnAssignment = FunctionReturnAssignmentNode(
+                            variable = lastSt.variable,
+                            value = lastSt.value,
+                        )
+
+                        val newStatements = bodyReal.statements.toMutableList()
+                        newStatements.removeLast()
+                        bodyReal.statements = newStatements
+                    }
                 } ?: run {
-                    throw ParseException("Функция ${name} не возвращает значение")
+                    SemanticChecker.errors.add("Функция ${name} не возвращает значение")
                 }
             }
 
-            else -> throw ParseException("Функция ${name} не возвращает значение")
+            else -> {
+                SemanticChecker.errors.add("Функция ${name} не возвращает значение")
+            }
         }
 
         if (returnAssignment.variable.name == this.name.name
         ) {
 
         } else {
-            throw ParseException("Функция ${name} не возвращает значение")
+            SemanticChecker.errors.add("Функция ${name} не возвращает значение")
         }
     }
 

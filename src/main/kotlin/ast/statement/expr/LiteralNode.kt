@@ -18,7 +18,7 @@ class LiteralNode(
         this.symbol = symbol
         if (symbol == "true" || symbol == "false") {
             this.value = symbol.toBoolean()
-        } else if (symbol.contains("\"")) {
+        } else if (symbol.contains("\'")) {
             this.value = symbol
         } else if (symbol.contains(".")) {
             this.value = symbol.toFloat()

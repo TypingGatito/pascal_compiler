@@ -7,11 +7,11 @@ b := A>9;
 f1 := b;
 end;
 
-function f5(x1: real, z: boolean): boolean;
+function f1(x1: real, z: boolean): boolean;
 var a, g: real;
 var b: boolean;
 begin
-b := A>9;
+be := AA>9;
 
 f5 := b;
 end;
@@ -36,12 +36,12 @@ var g, t2, d: integer;
 begin
 
 if (true)
-then g := 5;
+then gr := 5;
 else g := 5;
 
 while d>2 do
 begin
-f1(d, 6);
+f1(dr, 6);
 println();
 end;
 end.

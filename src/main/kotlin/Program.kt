@@ -29,7 +29,14 @@ object Program {
         println("semantic-check:")
         val checker = SemanticChecker()
         val scope: IdentScope = SemanticChecker.prepareGlobalScope()
+
         checker.semanticCheck(prog, scope)
+
+        if (SemanticChecker.errors.isNotEmpty()) {
+            println("Ошибки компиляции:")
+            SemanticChecker.errors.forEach { println(it) }
+            return
+        }
 
         println(printTree(prog.tree(), System.lineSeparator()))
         println()
