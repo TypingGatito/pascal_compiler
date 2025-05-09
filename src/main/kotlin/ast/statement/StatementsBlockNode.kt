@@ -6,7 +6,7 @@ class StatementsBlockNode(
     var statements: List<StatementNode>,
 ) : StatementNode() {
 
-    override fun children(): List<AstNode?> {
+    override fun children(): List<AstNode> {
         return statements
     }
 

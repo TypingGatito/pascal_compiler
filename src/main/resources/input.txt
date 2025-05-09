@@ -25,7 +25,7 @@ a>9;
 fUNctioNaliuS:=2;
 end;
 
-function f3(q: real, w: boolean, e: char): integer;
+function f3(q: real, w: boolean, e: string): integer;
 begin
 functionalius(0.5, true);
 f3:=6;

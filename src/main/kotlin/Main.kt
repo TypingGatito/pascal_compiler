@@ -8,6 +8,8 @@ fun main(args: Array<String>) {
     // параметры вызова функции
     options.addOption(getOption("s", "source", true, "source code file", true))
     options.addOption(getOption("b", "show-base", false, "show base tree", false))
+    options.addOption(getOption("se", "show-semantic", false, "show semantic tree", false))
+    options.addOption(getOption("m", "show-msil", false, "show msil", false))
 
     val parser: CommandLineParser = DefaultParser()
     val formatter = HelpFormatter()
@@ -25,10 +27,14 @@ fun main(args: Array<String>) {
     val srcText = readFile(src)
 
     val showBaseTree = cmd.hasOption("show-base")
+    val showSemantic = cmd.hasOption("show-semantic")
+    val showMsil = cmd.hasOption("show-msil")
 
     Program.execute(
         programFile = srcText,
         showBaseTree = showBaseTree,
+        showSemanticTree = showSemantic,
+        showMsil = showMsil,
         fileName = src
     )
 }

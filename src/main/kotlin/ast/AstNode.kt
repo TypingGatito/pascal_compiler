@@ -1,5 +1,6 @@
 package ast
 
+import code_generation.msil.MsilCodeGenerator
 import exceptions.SemanticException
 import semantic.base.IdentDesc
 import semantic.base.IdentScope
@@ -15,7 +16,7 @@ abstract class AstNode() {
     var nodeIdent: IdentDesc? = null
 
 
-    open fun children(): List<AstNode?> {
+    open fun children(): List<AstNode> {
         return listOf()
     }
 
@@ -50,6 +51,9 @@ abstract class AstNode() {
         }
 
         return res
+    }
+    fun msilGen(generator: MsilCodeGenerator) {
+        generator.msilGen(this)
     }
 
     fun semanticError(message: String?): SemanticException {

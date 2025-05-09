@@ -9,11 +9,11 @@ class IfNode (
     var elseStmt: StatementNode?,
 ) : StatementNode() {
 
-    override fun children(): List<AstNode?> {
-        val astNodes: MutableList<AstNode?> = ArrayList()
+    override fun children(): List<AstNode> {
+        val astNodes: MutableList<AstNode> = ArrayList()
         astNodes.add(this.cond)
         astNodes.add(this.thenStmt)
-        astNodes.add(this.elseStmt)
+        this.elseStmt?.let { astNodes.add(it) }
         return astNodes
     }
 

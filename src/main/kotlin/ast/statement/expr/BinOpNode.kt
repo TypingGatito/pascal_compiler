@@ -19,8 +19,8 @@ class BinOpNode() : ExprNode() {
         this.arg2 = exprNode2
     }
 
-    override fun children(): List<AstNode?> {
-        return listOf<AstNode?>(arg1, arg2)
+    override fun children(): List<AstNode> {
+        return listOf<AstNode>(arg1, arg2)
     }
 
     override fun toString(): String {

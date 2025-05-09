@@ -9,8 +9,8 @@ class ForConditionNode (
     var destination: ExprNode,
 ) : StatementNode() {
 
-    override fun children(): List<AstNode?> {
-        val astNodes: MutableList<AstNode?> = ArrayList()
+    override fun children(): List<AstNode> {
+        val astNodes: MutableList<AstNode> = ArrayList()
         astNodes.add(this.count)
         astNodes.add(this.destination)
         return astNodes

@@ -9,8 +9,8 @@ class FunctionReturnAssignmentNode(
     var value: ExprNode,
 ) : StatementNode() {
 
-    override fun children(): List<AstNode?> {
-        return listOf<AstNode?>(variable, value)
+    override fun children(): List<AstNode> {
+        return listOf<AstNode>(variable, value)
     }
 
     override fun toString(): String {

@@ -21,8 +21,8 @@ class TypeConvertNode() : ExprNode() {
 
     override fun children(): List<AstNode> {
         val astNodes: MutableList<AstNode> = ArrayList()
-        val groupNodes: MutableList<AstNode?> = ArrayList()
-        groupNodes.add(this.expr)
+        val groupNodes: MutableList<AstNode> = ArrayList()
+        this.expr?.let { groupNodes.add(it) }
         astNodes.add(HelpGroupNode(type.toString(), groupNodes))
         return astNodes
     }

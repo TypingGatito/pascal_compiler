@@ -8,7 +8,7 @@ class FuncCallNode(
     var params: List<ExprNode>,
 ) : ExprNode() {
 
-    override fun children(): List<AstNode?> {
+    override fun children(): List<AstNode> {
         return params + name
     }
 

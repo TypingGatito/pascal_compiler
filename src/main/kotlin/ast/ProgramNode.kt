@@ -10,7 +10,7 @@ class ProgramNode(
     val functions: List<FuncDeclarationNode>
 ) : AstNode() {
 
-    override fun children(): List<AstNode?> {
+    override fun children(): List<AstNode> {
         return functions + variables + statements
     }
 

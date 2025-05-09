@@ -1,10 +1,8 @@
-var a, b: integer;
+var i, a, b: integer;
 begin
-writeln('f');
-readln(a, b);
 for i := a to b do
 begin
-if i / 2 == 0 then writeln(a);
-else writeln(b);
+if i / 2 == 0 then println();
+else println();
 end;
 end.

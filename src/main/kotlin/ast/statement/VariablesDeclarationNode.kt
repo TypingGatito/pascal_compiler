@@ -9,7 +9,7 @@ class VariablesDeclarationNode(
     var type: TypeNode,
 ) : StatementNode() {
 
-    override fun children(): List<AstNode?> {
+    override fun children(): List<AstNode> {
         return identNodes + type
     }
 
