@@ -1,0 +1,74 @@
+.assembly program
+{
+}
+.class public Program
+{
+  .field public static int32 _gv0
+  .field public static int32 _gv1
+  .field public static int32 _gv2
+  .field public static string _gv3
+  .method public static string input() cil managed
+  {
+    .locals init (string _v0)
+    call string class CompilerDemo.Runtime::read()
+    stloc 0
+    ldloc 0
+    ret
+  }
+  .method public static float64 square(float64 x1) cil managed
+  {
+    .locals init (float64 x1, float64 _v0, float64 _v1, bool _v2)
+    ldarg 0
+    ldarg 0
+    mul
+    ret
+  }
+  
+  .method public static void Main()
+  {
+    .entrypoint
+    ldstr "Enter sth:"
+    call int32 class CompilerDemo.Runtime::println(string)
+    stsfld int32 Program::_gv1
+    call string class Program::input()
+    stsfld string Program::_gv3
+    ldsfld string Program::_gv3
+    call int32 class CompilerDemo.Runtime::println(string)
+    stsfld int32 Program::_gv1
+    ldsfld int32 Program::_gv0
+    ldc.i4 2
+    div
+    ldc.i4 0
+    ceq
+    brfalse L_0
+    ldstr "Enter number:"
+    call int32 class CompilerDemo.Runtime::println(string)
+    stsfld int32 Program::_gv1
+    call string class CompilerDemo.Runtime::read()
+    call int32 class CompilerDemo.Runtime::to_int(string)
+    stsfld int32 Program::_gv2
+    br L_1
+  L_0:
+    ldc.i4 5
+    stsfld int32 Program::_gv2
+  L_1:
+  L_2:
+    ldsfld int32 Program::_gv0
+    ldsfld int32 Program::_gv2
+    clt
+    brfalse L_3
+    ldsfld int32 Program::_gv0
+    ldc.i4 1
+    add
+    stsfld int32 Program::_gv0
+    ldsfld int32 Program::_gv0
+    conv.r8
+    call float64 class Program::square(float64)
+    call string class CompilerDemo.Runtime::convert(float64)
+    call int32 class CompilerDemo.Runtime::println(string)
+    stsfld int32 Program::_gv1
+    br L_2
+  L_3:
+    ret
+  }
+}

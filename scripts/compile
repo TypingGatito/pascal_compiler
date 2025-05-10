@@ -1,0 +1,3 @@
+.\bin\ilasm /out:1.exe /exe 1.msil runtime-net\runtime.msil
+
+.\1.exe

@@ -1,8 +1,36 @@
-var i, a, b: integer;
+function input(): string;
+var inp: string;
 begin
-for i := a to b do
-begin
-if i / 2 == 0 then println();
-else println();
+inp:=read();
+input:=inp;
 end;
+
+function square(x1: real): real;
+var a, g: real;
+var b: boolean;
+begin
+square := x1 * x1;
+end;
+
+
+var i, a, b: integer;
+var s: string;
+begin
+a := println('Enter sth:');
+s := input();
+a := println(s);
+
+if i / 2 == 0 then
+begin
+a := println('Enter number:');
+b := to_int(read());
+end;
+else b := 5;
+
+while i < b do
+begin
+i := i + 1;
+a := println(square(i));
+end;
+
 end.

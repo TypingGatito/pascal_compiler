@@ -57,11 +57,11 @@ object Program {
                 gen.msilGen(prog)
                 val resultMsil: String = Printer.printTree(gen.code(), System.lineSeparator())
                 println(resultMsil)
-//                Printer.writeToFile(fileName.split("[.]".toRegex()).dropLastWhile { it.isEmpty() }
-//                    .toTypedArray()[0] + ".msil", resultMsil, false)
+                Printer.writeToFile(fileName.split("[.]".toRegex()).dropLastWhile { it.isEmpty() }
+                    .toTypedArray()[0] + "1.msil", resultMsil, false)
             } catch (e: Exception) {
                 println(String.format("Ошибка: %s", e.message))
-                System.exit(3)
+                exitProcess(3)
             }
         }
     }

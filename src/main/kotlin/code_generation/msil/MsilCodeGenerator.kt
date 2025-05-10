@@ -46,7 +46,7 @@ class MsilCodeGenerator : CodeGenerator() {
             }
 
             BaseType.STR -> {
-                this.add(String.format("ldstr %s", value))
+                this.add(String.format("ldstr %s", value.toString().replace("'", "\"")))
             }
 
             BaseType.VOID -> {}
@@ -101,7 +101,6 @@ class MsilCodeGenerator : CodeGenerator() {
         val globalVarsDecls: List<VariablesDeclarationNode> = findVarsDecls(prog)
         for (node in globalVarsDecls) {
             for (`var` in node.identNodes) {
-
                 if (`var`.nodeIdent!!.scope.equals(ScopeType.GLOBAL)
                     || `var`.nodeIdent!!.scope.equals(ScopeType.GLOBAL_LOCAL)
                 ) {
@@ -172,7 +171,16 @@ class MsilCodeGenerator : CodeGenerator() {
 
     fun msilGen(node: VariablesDeclarationNode) {
         for (`var` in node.identNodes) {
-            `var`.msilGen(this)
+            if (`var`.nodeIdent!!.scope.equals(ScopeType.GLOBAL)
+                || `var`.nodeIdent!!.scope.equals(ScopeType.GLOBAL_LOCAL)
+            ) {
+                this.add(
+                    java.lang.String.format(
+                        ".field public static %s _gv%d",
+                        MSIL_TYPE_NAMES[`var`.nodeType!!.baseType], `var`.nodeIdent!!.index
+                    )
+                )
+            }
         }
     }
 

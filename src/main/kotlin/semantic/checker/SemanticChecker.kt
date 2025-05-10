@@ -18,12 +18,23 @@ import semantic.base.SemanticBase.typeConvert
 
 class SemanticChecker {
     companion object {
-        private const val BUILT_IN_OBJECTS: String = "" +
-                "function println(): integer;" +
-                "begin " +
-                "println:=11;" +
-                "end;" +
-                "begin end."
+        private const val BUILT_IN_OBJECTS: String =
+            "function println(s: string): integer;" +
+                    "begin " +
+                    "println:=11;" +
+                    "end;" +
+
+                    "function read(): string;" +
+                    "begin " +
+                    "read:='d';" +
+                    "end;" +
+
+                    "function to_int(s: string): integer;" +
+                    "begin " +
+                    "to_int:=1;" +
+                    "end;" +
+
+                    "begin end."
 
         fun prepareGlobalScope(): IdentScope {
             val prog: AstNode = parse(BUILT_IN_OBJECTS)
@@ -67,6 +78,7 @@ class SemanticChecker {
             node.value = typeConvert(node.value, it, node, "присваемое значение")
         }
         node.nodeType = node.variable.nodeType
+        node.nodeIdent = node.variable.nodeIdent
     }
 
     fun semanticCheck(node: TypeNode, scope: IdentScope) {

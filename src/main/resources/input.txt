@@ -27,7 +27,7 @@ end;
 
 function f3(q: real, w: boolean, e: string): integer;
 begin
-functionalius(0.5, true);
+functionalifus(0.5, true);
 f3:=6;
 end;
 
